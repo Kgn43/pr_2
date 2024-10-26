@@ -3,8 +3,8 @@
 
 #include <iostream>
 #include <nlohmann/json.hpp>
-#include "arr.h"
 #include "common.h"
+#include "arr.h"
 #include "insert.h"
 #include "delete.h"
 #include "select.h"
@@ -22,12 +22,6 @@ enum commands{
     Wrong
 };
 
-
-commands commandRequest(const std::string &input){
-    if(input == "insert") return commands::Insert;
-    if (input == "delete") return commands::Del;
-    if (input == "select") return commands::Select;
-    return commands::Wrong;
-}
+commands commandRequest(const std::string &input);
 
 #endif //USER_QUERY_H

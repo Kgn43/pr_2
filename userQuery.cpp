@@ -1,6 +1,14 @@
 #include "userQuery.h"
 
 
+commands commandRequest(const std::string &input){
+    if(input == "insert") return commands::Insert;
+    if (input == "delete") return commands::Del;
+    if (input == "select") return commands::Select;
+    return commands::Wrong;
+}
+
+
 string userQuery(const json& structureJSON, const string& input){
     arr<string> query = splitToArr(input);
     if (query.size == 0){
