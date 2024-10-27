@@ -9,7 +9,10 @@ commands commandRequest(const std::string &input){
 }
 
 
-string userQuery(const json& structureJSON, const string& input){
+string userQuery(const json& structureJSON){
+    string input;
+    cout << "Enter command" << endl;
+    getline(cin, input);
     arr<string> query = splitToArr(input);
     if (query.size == 0){
         return "query was not entered";
