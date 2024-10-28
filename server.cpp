@@ -3,11 +3,14 @@
 #include <unistd.h>//sleep func
 #include <future>
 #include <mutex>
+#include <thread>
 
 
 #include "makeStructure.h"
 #include "userQuery.h"
 
+
+//10.0.2.15
 
 void requestProcessing(const int clientSocket, const sockaddr_in& clientAddress, const nlohmann::json& structure) {
     mutex userMutex;
@@ -50,6 +53,12 @@ void startServer(const json& structureJSON) {
         return;
     }
 
+    const int opt = 1;
+    if (setsockopt(server, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt))) {
+        cerr << "Error of setting parameters of socket" << endl;
+        return;
+    }
+
     if (listen(server, 10) == -1) {
         cerr << "Socket listening error" << endl;
         return;
@@ -60,6 +69,7 @@ void startServer(const json& structureJSON) {
     sockaddr_in clientAddress{};
     socklen_t clientAddrLen = sizeof(clientAddress);
     while (true){
+        cout << "listen" << endl;
         int clientSocket = accept(server, reinterpret_cast<struct sockaddr *>(&clientAddress), &clientAddrLen);
         if(clientSocket == -1){
             cout << "connection fail" << endl;
@@ -67,7 +77,7 @@ void startServer(const json& structureJSON) {
             continue;
         }
         cout << "Client[" << clientAddress.sin_addr.s_addr << "] was connected" << endl;
-        future<void> isExecuted = async(requestProcessing, clientSocket, clientAddress, structureJSON);
+        thread( requestProcessing, clientSocket, clientAddress, structureJSON).detach();
     }
     close(server);
 }
