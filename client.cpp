@@ -1,4 +1,5 @@
 #include "client.h"
+#include "ip.h"
 
 using std::cerr, std::endl, std::cout, std::cin, std::string;
 
@@ -12,7 +13,7 @@ int main() {
     struct sockaddr_in server = {};
     server.sin_family = AF_INET;
     server.sin_port = htons(7432);
-    if (inet_pton(AF_INET, "127.0.0.1", &server.sin_addr) <= 0) {
+    if (inet_pton(AF_INET, IP, &server.sin_addr) <= 0) {
         cerr << "Invalid address/ Address not supported" << endl;
         return -1;
     }

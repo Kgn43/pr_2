@@ -4,13 +4,13 @@
 #include <future>
 #include <mutex>
 #include <thread>
+#include <arpa/inet.h>
 
-
+#include "ip.h"
 #include "makeStructure.h"
 #include "userQuery.h"
 
 
-//10.0.2.15
 
 void requestProcessing(const int clientSocket, const sockaddr_in& clientAddress, const nlohmann::json& structure) {
     mutex userMutex;
@@ -45,17 +45,11 @@ void startServer(const json& structureJSON) {
     }
     sockaddr_in address{}; //IPV4 protocol structure
     address.sin_family = AF_INET;
-    address.sin_addr.s_addr = INADDR_ANY; //any = 0.0.0.0
+    address.sin_addr.s_addr = inet_addr(IP); //any = 0.0.0.0
     address.sin_port = htons(7432);//host to net short
-
+    //close(server);
     if (bind(server, reinterpret_cast<struct sockaddr *>(&address), sizeof(address)) < 0) {
         cerr << "Binding error" << endl;
-        return;
-    }
-
-    const int opt = 1;
-    if (setsockopt(server, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt))) {
-        cerr << "Error of setting parameters of socket" << endl;
         return;
     }
 
@@ -69,11 +63,9 @@ void startServer(const json& structureJSON) {
     sockaddr_in clientAddress{};
     socklen_t clientAddrLen = sizeof(clientAddress);
     while (true){
-        cout << "listen" << endl;
         int clientSocket = accept(server, reinterpret_cast<struct sockaddr *>(&clientAddress), &clientAddrLen);
         if(clientSocket == -1){
             cout << "connection fail" << endl;
-            // sleep(5);
             continue;
         }
         cout << "Client[" << clientAddress.sin_addr.s_addr << "] was connected" << endl;
