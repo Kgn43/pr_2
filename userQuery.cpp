@@ -9,15 +9,12 @@ commands commandRequest(const std::string &input){
 }
 
 
-string userQuery(const json& structureJSON){
-    string input;
-    cout << "Enter command" << endl;
-    getline(cin, input);
-    arr<string> query = splitToArr(input);
+string userQuery(const string& userQuery, const json& structureJSON){
+    const arr<string> query = splitToArr(userQuery);
     if (query.size == 0){
         return "query was not entered";
     }
-    commands comm = commandRequest(query[0]);
+    const commands comm = commandRequest(query[0]);
     try{
         switch (comm) {
             case Insert:

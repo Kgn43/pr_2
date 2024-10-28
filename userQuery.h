@@ -13,7 +13,7 @@ using namespace std;
 using json = nlohmann::json;
 
 
-string userQuery(const json& structureJSON);
+string userQuery(const string& userQuery, const json& structureJSON);
 
 enum commands{
     Insert,
