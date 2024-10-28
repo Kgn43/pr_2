@@ -4,8 +4,8 @@ using std::cerr, std::endl, std::cout, std::cin, std::string;
 
 
 int main() {
-    int socket = socket(AF_INET, SOCK_STREAM, 0);
-    if (socket == -1) {
+    const int sock = socket(AF_INET, SOCK_STREAM, 0);
+    if (sock == -1) {
         cerr << "Socket creation error" << endl;
         return -1;
     }
@@ -14,31 +14,34 @@ int main() {
     server.sin_port = htons(7432);
     if (inet_pton(AF_INET, "127.0.0.1", &server.sin_addr) <= 0) {
         cerr << "Invalid address/ Address not supported" << endl;
+        return -1;
     }
-    if (connect(socket, reinterpret_cast<sockaddr *>(&server), sizeof(struct sockaddr_in)) < 0) {
+    if (connect(sock, reinterpret_cast<sockaddr *>(&server), sizeof(struct sockaddr_in)) < 0) {
         cerr << "Connection Failed" << endl;
+        return -1;
     }
     cout << "Client connected" << endl;
     string buffer;
     bool isDisconnect = false;
     while (!isDisconnect) {
-        cout << "Enter string" << endl;
+        cout << "Enter query" << endl;
         getline(cin, buffer);
         if (buffer == "disconnect") {
             isDisconnect = true;
-            send(socket, buffer.c_str(), buffer.size(), 0);
+            send(sock, buffer.c_str(), buffer.size(), 0);
             continue;
         }
-        send(socket, buffer.c_str(), buffer.size(), 0);
-        auto nrecv = recv(socket, &buffer, buffer.size(), 0);
+        send(sock, buffer.c_str(), buffer.size(), 0);
+        auto nrecv = recv(sock, &buffer, buffer.size(), 0);
         if (nrecv == -1) {
             cerr << "read failed" << endl;
             continue;
         }
         if (nrecv == 0) {
             cerr << "EOF occured" << endl;
+            continue;
         }
-
+        cout << buffer << endl;
     }
     return 0;
 }

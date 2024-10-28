@@ -9,7 +9,7 @@
 #include "userQuery.h"
 
 
-void requestProcessing(const int clientSocket, const nlohmann::json& structure) {
+void requestProcessing(const int clientSocket, const sockaddr_in& clientAddress, const nlohmann::json& structure) {
     mutex userMutex;
     char receive[1024] = {};
     string sending;
@@ -23,11 +23,13 @@ void requestProcessing(const int clientSocket, const nlohmann::json& structure) 
             send(clientSocket, sending.c_str(), sending.size(), 0);
         }
         if (userRead == 0) {
-            sending = "Query to big\n";
-            send(clientSocket, sending.c_str(), sending.size(), 0);
+            cerr << "client[" << clientAddress.sin_addr.s_addr << "] disconnected\n";
+            isExit = true;
+            continue;
         }
         if (receive == "disconnect") {
             isExit = true;
+            continue;
         }
         string result = userQuery(receive ,structure);
         send(clientSocket, result.c_str(), result.size(), 0);
@@ -69,7 +71,7 @@ void startServer(const json& structureJSON) {
             continue;
         }
         cout << "Client[" << clientAddress.sin_addr.s_addr << "] was connected" << endl;
-        future<void> isExecuted = async(requestProcessing, clientSocket, structureJSON);
+        future<void> isExecuted = async(requestProcessing, clientSocket, clientAddress, structureJSON);
 
     }
     close(server);
