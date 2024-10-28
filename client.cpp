@@ -22,26 +22,28 @@ int main() {
     }
     cout << "Client connected" << endl;
     string buffer;
+    char buff[1024];
     bool isDisconnect = false;
     while (!isDisconnect) {
         cout << "Enter query" << endl;
         getline(cin, buffer);
         if (buffer == "disconnect") {
             isDisconnect = true;
-            send(sock, buffer.c_str(), buffer.size(), 0);
+            send(sock, buffer.c_str(), buffer.size() - 1, 0);
             continue;
         }
         send(sock, buffer.c_str(), buffer.size(), 0);
-        auto nrecv = recv(sock, &buffer, buffer.size(), 0);
-        if (nrecv == -1) {
+        auto recvLen = recv(sock, &buff, sizeof buff, 0);
+        if (recvLen == -1) {
             cerr << "read failed" << endl;
             continue;
         }
-        if (nrecv == 0) {
+        if (recvLen == 0) {
             cerr << "EOF occured" << endl;
             continue;
         }
-        cout << buffer << endl;
+        buff[recvLen] = '\0';
+        cout << buff << endl;
     }
     return 0;
 }

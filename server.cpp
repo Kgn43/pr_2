@@ -18,11 +18,7 @@ void requestProcessing(const int clientSocket, const sockaddr_in& clientAddress,
         lock_guard<mutex> guard(userMutex);
         bzero(receive, 1024);
         const ssize_t userRead = read(clientSocket, receive, 1024);
-        if (userRead == -1) {
-            sending = "Read error\n";
-            send(clientSocket, sending.c_str(), sending.size(), 0);
-        }
-        if (userRead == 0) {
+        if (userRead <= 0) {
             cerr << "client[" << clientAddress.sin_addr.s_addr << "] disconnected\n";
             isExit = true;
             continue;
@@ -66,13 +62,12 @@ void startServer(const json& structureJSON) {
     while (true){
         int clientSocket = accept(server, reinterpret_cast<struct sockaddr *>(&clientAddress), &clientAddrLen);
         if(clientSocket == -1){
-            cout << "No one to connect" << endl;
-            sleep(5);
+            cout << "connection fail" << endl;
+            // sleep(5);
             continue;
         }
         cout << "Client[" << clientAddress.sin_addr.s_addr << "] was connected" << endl;
         future<void> isExecuted = async(requestProcessing, clientSocket, clientAddress, structureJSON);
-
     }
     close(server);
 }
